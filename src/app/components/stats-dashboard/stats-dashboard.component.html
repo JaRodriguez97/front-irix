@@ -1,0 +1,97 @@
+<section class="stats-section">
+  <h2>📊 Estadísticas en Tiempo Real</h2>
+  
+  <div class="stats-grid">
+    <!-- Frames Procesados -->
+    <div class="stat-card primary">
+      <div class="stat-icon">📊</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ formattedStats.framesProcessed }}</div>
+        <div class="stat-label">Frames Procesados</div>
+        <div class="stat-sublabel">Imágenes analizadas</div>
+      </div>
+    </div>
+
+    <!-- Placas Detectadas -->
+    <div class="stat-card success">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ formattedStats.platesFound }}</div>
+        <div class="stat-label">Placas Detectadas</div>
+        <div class="stat-sublabel">Detecciones exitosas</div>
+      </div>
+    </div>
+
+    <!-- FPS Promedio -->
+    <div class="stat-card" [ngClass]="getFPSStatus()">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ formattedStats.averageFPS }}</div>
+        <div class="stat-label">FPS Promedio</div>
+        <div class="stat-sublabel">Velocidad de análisis</div>
+      </div>
+        <!-- <div class="fps-indicator">
+          <div class="fps-bar" [style.width.%]="(cameraStats.averageFPS / 2) * 100"></div>
+        </div> -->
+    </div>
+
+    <!-- Imágenes Almacenadas -->
+    <div class="stat-card info">
+      <div class="stat-icon">💾</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ formattedStats.imagesStored }}</div>
+        <div class="stat-label">Imágenes HD</div>
+        <div class="stat-sublabel">Guardadas en dispositivo</div>
+      </div>
+    </div>
+
+    <!-- Tasa de Éxito -->
+    <div class="stat-card" [style.--success-color]="getSuccessRateColor()">
+      <div class="stat-icon">✅</div>
+      <div class="stat-content">
+        <div class="stat-value" [style.color]="getSuccessRateColor()">
+          {{ formattedStats.successRate }}%
+        </div>
+        <div class="stat-label">Tasa de Éxito</div>
+        <div class="stat-sublabel">Detecciones/Frames</div>
+      </div>
+      <!-- <div class="success-indicator">
+        <div class="success-bar" 
+             [style.width.%]="formattedStats.successRate"
+             [style.background]="getSuccessRateColor()">
+        </div>
+      </div> -->
+    </div>
+
+    <!-- Tiempo de Procesamiento -->
+    <div class="stat-card secondary">
+      <div class="stat-icon">⏱️</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ formattedStats.processingTime }}</div>
+        <div class="stat-label">Tiempo de Proc.</div>
+        <div class="stat-sublabel">Por imagen</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Indicadores de Rendimiento -->
+  <div class="performance-indicators">
+    <div class="performance-badge" 
+         [ngClass]="getFPSStatus()">
+      <span class="badge-icon">⚡</span>
+      <span class="badge-text">
+        Rendimiento: 
+        <span *ngIf="getFPSStatus() === 'excellent'">Excelente</span>
+        <span *ngIf="getFPSStatus() === 'good'">Bueno</span>
+        <span *ngIf="getFPSStatus() === 'poor'">Necesita Mejora</span>
+      </span>
+    </div>
+    
+    <div class="performance-badge info">
+      <span class="badge-icon">📡</span>
+      <span class="badge-text">
+        Sistema en tiempo real funcionando a 2 FPS
+      </span>
+    </div>
+  </div>
+</section>

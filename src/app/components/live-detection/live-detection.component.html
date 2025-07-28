@@ -1,0 +1,91 @@
+<div class="live-detection-container">
+  <div class="header">
+    <h2>🎯 Detección de Placas en Tiempo Real</h2>
+    <div class="status-indicators">
+      <div class="status-item">
+        <span class="status-label">Socket.IO:</span>
+        <span class="status-value" [class.connected]="isConnected$ | async" [class.disconnected]="!(isConnected$ | async)">
+          {{ (isConnected$ | async) ? '🟢 Conectado' : '🔴 Desconectado' }}
+        </span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Análisis:</span>
+        <span class="status-value" [class.active]="isAnalyzing$ | async">
+          {{ (isAnalyzing$ | async) ? '🟢 Activo' : '⏸️ Pausado' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <!-- Video Preview Area -->
+    <div class="video-section">
+      <div class="video-container">
+        <video #videoElement autoplay muted playsinline class="camera-feed"></video>
+        <div class="detection-overlay" *ngIf="lastResult?.hasPlate">
+          <div class="plate-detected">
+            🎯 PLACA DETECTADA
+            <div class="confidence">Confianza: {{ (lastResult?.confidence || 0) * 100 | number:'1.0-1' }}%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Dashboard -->
+    <div class="stats-section">
+      <div class="stats-grid" *ngIf="stats$ | async as stats">
+        <div class="stat-card">
+          <div class="stat-value">{{ stats.imagesAnalyzed }}</div>
+          <div class="stat-label">Imágenes Analizadas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ stats.platesDetected }}</div>
+          <div class="stat-label">Placas Detectadas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ stats.averageProcessingTime | number:'1.0-0' }}ms</div>
+          <div class="stat-label">Tiempo Promedio</div>
+        </div>
+        <div class="stat-card detection-rate">
+          <div class="stat-value">{{ stats.platesDetected > 0 ? (stats.platesDetected / stats.imagesAnalyzed * 100 | number:'1.1-1') : 0 }}%</div>
+          <div class="stat-label">Tasa de Detección</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Control Buttons -->
+  <div class="controls-section">
+    <button class="btn btn-primary" (click)="startAnalysis()" [disabled]="isAnalyzing$ | async">
+      🚀 Iniciar Análisis
+    </button>
+    <button class="btn btn-secondary" (click)="stopAnalysis()" [disabled]="!(isAnalyzing$ | async)">
+      ⏹️ Detener Análisis
+    </button>
+  </div>
+
+  <!-- Latest Result Display -->
+  <div class="result-section" *ngIf="lastResult">
+    <h3>📊 Último Resultado</h3>
+    <div class="result-card">
+      <div class="result-item">
+        <strong>Tipo:</strong> {{ lastResult.type }}
+      </div>
+      <div class="result-item" *ngIf="lastResult.hasPlate !== undefined">
+        <strong>Placa Detectada:</strong> 
+        <span [class.detected]="lastResult.hasPlate" [class.not-detected]="!lastResult.hasPlate">
+          {{ lastResult.hasPlate ? '✅ Sí' : '❌ No' }}
+        </span>
+      </div>
+      <div class="result-item" *ngIf="lastResult.confidence !== undefined">
+        <strong>Confianza:</strong> {{ lastResult.confidence * 100 | number:'1.2-2' }}%
+      </div>
+      <div class="result-item" *ngIf="lastResult.processingTime">
+        <strong>Tiempo de Procesamiento:</strong> {{ lastResult.processingTime }}ms
+      </div>
+      <div class="result-item" *ngIf="lastResult.timestamp">
+        <strong>Timestamp:</strong> {{ lastResult.timestamp | date:'medium' }}
+      </div>
+    </div>
+  </div>
+</div>

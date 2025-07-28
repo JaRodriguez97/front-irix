@@ -1,0 +1,40 @@
+<div class="control-group">
+  <h2>⚡ Análisis en Tiempo Real</h2>
+  
+  <div class="analysis-info">
+    <div class="info-badge">
+      <span class="frequency">2 FPS</span>
+      <span class="description">Análisis cada 0.5 segundos</span>
+    </div>
+    <div class="info-badge">
+      <span class="resolution">300×300</span>
+      <span class="description">Detección rápida</span>
+    </div>
+  </div>
+  
+  <div class="button-group">
+    <button 
+      class="btn btn-success" 
+      [disabled]="!canStartAnalysis" 
+      (click)="onStartAnalysis()"
+      [title]="getStartButtonTooltip()">
+      <span *ngIf="!isAnalyzing">▶️ Iniciar Análisis</span>
+      <span *ngIf="isAnalyzing" class="analyzing">⚡ Analizando...</span>
+    </button>
+    
+    <button 
+      class="btn btn-warning" 
+      [disabled]="!canStopAnalysis" 
+      (click)="onStopAnalysis()">
+      ⏸️ Detener Análisis
+    </button>
+  </div>
+  
+  <!-- Estado del análisis -->
+  <div class="analysis-status" *ngIf="isAnalyzing">
+    <div class="status-indicator active">
+      <div class="pulse-dot"></div>
+      <span>Análisis activo - Buscando placas vehiculares</span>
+    </div>
+  </div>
+</div>

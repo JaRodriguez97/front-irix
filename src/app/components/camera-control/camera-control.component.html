@@ -1,0 +1,31 @@
+<div class="control-group">
+  <h2>🎛️ Control de Detección en Tiempo Real</h2>
+  <div class="button-group">
+    <button 
+      class="btn btn-primary" 
+      [disabled]="isAnalyzing || !isConnectedToSocket" 
+      (click)="onStartCamera()"
+      [title]="!isConnectedToSocket ? 'Debe conectar Socket.IO primero' : ''">
+      🚀 Iniciar Análisis (2 FPS)
+    </button>
+    <button 
+      class="btn btn-secondary" 
+      [disabled]="!isAnalyzing" 
+      (click)="onStopCamera()">
+      ⏹️ Detener Análisis
+    </button>
+  </div>
+  
+  <!-- Indicadores de estado -->
+  <div class="status-indicators">
+    <span class="status-item" [class.active]="isCameraActive">
+      📷 Cámara: {{ isCameraActive ? 'Activa' : 'Inactiva' }}
+    </span>
+    <span class="status-item" [class.active]="isConnectedToSocket">
+      🔌 Socket.IO: {{ isConnectedToSocket ? 'Conectado' : 'Desconectado' }}
+    </span>
+    <span class="status-item" [class.active]="isAnalyzing">
+      🔍 Análisis: {{ isAnalyzing ? 'En progreso' : 'Detenido' }}
+    </span>
+  </div>
+</div>

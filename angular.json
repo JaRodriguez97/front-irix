@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/front-irix",
+            "outputPath": "dist/front-irix/browser",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -39,11 +39,14 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "8kb",
+                  "maximumError": "12kb"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "allowedCommonJsDependencies": [
+                "file-saver"
+              ]
             },
             "development": {
               "buildOptimizer": false,
@@ -91,6 +94,59 @@
             ],
             "scripts": []
           }
+        },
+        "server": {
+          "builder": "@angular-devkit/build-angular:server",
+          "options": {
+            "outputPath": "dist/front-irix/server",
+            "main": "server.ts",
+            "tsConfig": "tsconfig.server.json"
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "media"
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true,
+              "extractLicenses": false,
+              "vendorChunk": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve-ssr": {
+          "builder": "@nguniversal/builders:ssr-dev-server",
+          "configurations": {
+            "development": {
+              "browserTarget": "front-irix:build:development",
+              "serverTarget": "front-irix:server:development"
+            },
+            "production": {
+              "browserTarget": "front-irix:build:production",
+              "serverTarget": "front-irix:server:production"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "prerender": {
+          "builder": "@nguniversal/builders:prerender",
+          "options": {
+            "routes": [
+              "/"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "front-irix:build:production",
+              "serverTarget": "front-irix:server:production"
+            },
+            "development": {
+              "browserTarget": "front-irix:build:development",
+              "serverTarget": "front-irix:server:development"
+            }
+          },
+          "defaultConfiguration": "production"
         }
       }
     }
