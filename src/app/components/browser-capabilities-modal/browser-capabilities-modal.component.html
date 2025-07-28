@@ -1,0 +1,133 @@
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>🔍 Capacidades del Navegador</h2>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body" *ngIf="capabilities">
+      <!-- Información del navegador -->
+      <div class="info-section">
+        <h3>📱 Información del Dispositivo</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Navegador:</span>
+            <span class="value">{{ capabilities.browser.name }} v{{ capabilities.browser.version }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Plataforma:</span>
+            <span class="value">{{ capabilities.browser.platform }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Dispositivo:</span>
+            <span class="value">{{ capabilities.browser.mobile ? '📱 Móvil' : '💻 Escritorio' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Capacidades WebP -->
+      <div class="info-section">
+        <h3>🎨 Soporte de Imágenes WebP</h3>
+        <div class="capabilities-grid">
+          <div class="capability-item" [class.supported]="capabilities.webP.lossy">
+            <span class="icon">{{ capabilities.webP.lossy ? '✅' : '❌' }}</span>
+            <div class="capability-info">
+              <strong>WebP Lossy</strong>
+              <p>Compresión con pérdida (mejor para fotos)</p>
+            </div>
+          </div>
+          <div class="capability-item" [class.supported]="capabilities.webP.lossless">
+            <span class="icon">{{ capabilities.webP.lossless ? '✅' : '❌' }}</span>
+            <div class="capability-info">
+              <strong>WebP Lossless</strong>
+              <p>Sin pérdida de calidad (mejor para gráficos)</p>
+            </div>
+          </div>
+          <div class="capability-item" [class.supported]="capabilities.webP.animation">
+            <span class="icon">{{ capabilities.webP.animation ? '✅' : '❌' }}</span>
+            <div class="capability-info">
+              <strong>WebP Animado</strong>
+              <p>Soporte para GIFs en formato WebP</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Capacidades técnicas -->
+      <div class="info-section">
+        <h3>⚙️ Capacidades Técnicas</h3>
+        <div class="capabilities-grid">
+          <div class="capability-item" [class.supported]="capabilities.canvas.supported">
+            <span class="icon">{{ capabilities.canvas.supported ? '✅' : '❌' }}</span>
+            <div class="capability-info">
+              <strong>Canvas 2D</strong>
+              <p>Procesamiento de imágenes</p>
+            </div>
+          </div>
+          <div class="capability-item" [class.supported]="capabilities.canvas.webgl">
+            <span class="icon">{{ capabilities.canvas.webgl ? '✅' : '❌' }}</span>
+            <div class="capability-info">
+              <strong>WebGL</strong>
+              <p>Aceleración por GPU</p>
+            </div>
+          </div>
+          <div class="capability-item" [class.supported]="capabilities.canvas.imageBitmapSupported">
+            <span class="icon">{{ capabilities.canvas.imageBitmapSupported ? '✅' : '❌' }}</span>
+            <div class="capability-info">
+              <strong>ImageBitmap</strong>
+              <p>Procesamiento asíncrono optimizado</p>
+            </div>
+          </div>
+          <div class="capability-item" [class.supported]="capabilities.camera.supported">
+            <span class="icon">{{ capabilities.camera.supported ? '✅' : '❌' }}</span>
+            <div class="capability-info">
+              <strong>Cámara Web</strong>
+              <p>Acceso a la cámara del dispositivo</p>
+            </div>
+          </div>
+          <div class="capability-item" [class.supported]="capabilities.download.linkDownloadSupported">
+            <span class="icon">{{ capabilities.download.linkDownloadSupported ? '✅' : '❌' }}</span>
+            <div class="capability-info">
+              <strong>Descarga Automática</strong>
+              <p>Guardar imágenes procesadas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formato recomendado -->
+      <div class="info-section recommendation">
+        <h3>💡 Configuración Recomendada</h3>
+        <div class="recommendation-content">
+          <div class="format-info">
+            <strong>Formato de imagen:</strong> 
+            <span class="format-badge" [class.webp]="capabilities.webP.supported">
+              {{ capabilities.webP.supported ? 'WebP' : 'JPEG' }}
+            </span>
+          </div>
+          <div class="quality-info">
+            <strong>Calidad óptima:</strong> 
+            <span class="quality-value">
+              {{ capabilities.webP.supported ? '90%' : '85%' }}
+            </span>
+          </div>
+          <div class="size-info">
+            <strong>Tamaño esperado:</strong> 
+            <span class="size-value">
+              {{ capabilities.webP.supported ? '7-14KB' : '25-30KB' }} por imagen 300x300
+            </span>
+          </div>
+          <div class="download-info" *ngIf="capabilities.download.linkDownloadSupported">
+            <strong>📥 Descarga automática:</strong> 
+            <span class="download-enabled">Activada - Las imágenes 300x300 se guardarán automáticamente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-primary" (click)="closeModal()">Entendido</button>
+      <small>Esta información se usa para optimizar la detección de placas</small>
+    </div>
+  </div>
+</div>

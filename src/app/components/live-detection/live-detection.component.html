@@ -62,6 +62,9 @@
     <button class="btn btn-secondary" (click)="stopAnalysis()" [disabled]="!(isAnalyzing$ | async)">
       ⏹️ Detener Análisis
     </button>
+    <button class="btn btn-info" (click)="showCapabilitiesModal()">
+      ℹ️ Ver Capacidades
+    </button>
   </div>
 
   <!-- Latest Result Display -->
@@ -88,4 +91,7 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal de Capacidades del Navegador -->
+  <app-browser-capabilities-modal></app-browser-capabilities-modal>
 </div>

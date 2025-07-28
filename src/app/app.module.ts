@@ -11,12 +11,14 @@ import { CameraService } from './services/camera.service';
 import { StorageService } from './services/storage.service';
 import { SocketService } from './services/socket.service';
 import { ImageAnalysisService } from './services/image-analysis.service';
+import { BrowserCapabilitiesService } from './services/browser-capabilities.service';
 
 // Componentes especializados aplicando principios SOLID (SRP)
 import { CameraControlComponent } from './components/camera-control/camera-control.component';
 import { AnalysisControlComponent } from './components/analysis-control/analysis-control.component';
 import { StatsDashboardComponent } from './components/stats-dashboard/stats-dashboard.component';
 import { LiveDetectionComponent } from './components/live-detection/live-detection.component';
+import { BrowserCapabilitiesModalComponent } from './components/browser-capabilities-modal/browser-capabilities-modal.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +27,8 @@ import { LiveDetectionComponent } from './components/live-detection/live-detecti
     CameraControlComponent,
     AnalysisControlComponent,
     StatsDashboardComponent,
-    LiveDetectionComponent
+    LiveDetectionComponent,
+    BrowserCapabilitiesModalComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
@@ -37,7 +40,8 @@ import { LiveDetectionComponent } from './components/live-detection/live-detecti
     CameraService,
     StorageService,
     SocketService,
-    ImageAnalysisService
+    ImageAnalysisService,
+    BrowserCapabilitiesService
   ],
   bootstrap: [AppComponent]
 })

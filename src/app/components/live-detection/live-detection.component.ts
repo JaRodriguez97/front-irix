@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } fr
 import { ImageAnalysisService } from '../../services/image-analysis.service';
 import { SocketService } from '../../services/socket.service';
 import { CameraService } from '../../services/camera.service';
+import { BrowserCapabilitiesService } from '../../services/browser-capabilities.service';
 import { Observable } from 'rxjs';
 import { PlateDetectionResult } from '../../interfaces/plate-detection.interface';
 
@@ -22,7 +23,8 @@ export class LiveDetectionComponent implements OnInit, OnDestroy, AfterViewInit 
   constructor(
     private imageAnalysisService: ImageAnalysisService,
     private socketService: SocketService,
-    private cameraService: CameraService
+    private cameraService: CameraService,
+    private browserCapabilitiesService: BrowserCapabilitiesService
   ) {
     this.isAnalyzing$ = this.imageAnalysisService.isAnalyzing$;
     this.stats$ = this.imageAnalysisService.analysisStats$;
@@ -102,5 +104,9 @@ export class LiveDetectionComponent implements OnInit, OnDestroy, AfterViewInit 
   getAnalysisRate(): string {
     // Calcular FPS basado en estadísticas
     return '0 FPS';
+  }
+
+  showCapabilitiesModal(): void {
+    this.browserCapabilitiesService.showCapabilitiesModal();
   }
 }
