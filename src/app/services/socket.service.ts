@@ -4,6 +4,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { io, Socket } from 'socket.io-client';
 import { PlateDetectionResult } from '../interfaces/plate-detection.interface';
 import { environment } from '../../environments/environment';
+import { WebPDetectionService } from './webp-detection.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,10 @@ export class SocketService {
   private maxReconnectAttempts = 5;
   private isBrowser: boolean;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private webPDetectionService: WebPDetectionService
+  ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     if (this.isBrowser) {
       this.connectToSocket();
@@ -75,15 +79,21 @@ export class SocketService {
     }
   }
 
-  sendImageForAnalysis(imageBlob: Blob): void {
+  async sendImageForAnalysis(imageBlob: Blob): Promise<void> {
     if (!this.socket || !this.socket.connected) {
       console.error('❌ Socket.IO no conectado');
       return;
     }
 
-    console.log('🔍 DEBUG: Iniciando envío de imagen:', {
-      blobSize: imageBlob.size,
-      blobType: imageBlob.type,
+    // Obtener capacidades WebP para optimizar formato
+    const preferredFormat = await this.webPDetectionService.getPreferredFormat();
+    const optimizationStats = this.webPDetectionService.getOptimizationStats();
+    
+    console.log('🚀 OPTIMIZACIÓN WebP:', {
+      formatoOriginal: imageBlob.type,
+      formatoPreferido: preferredFormat,
+      tamaño: imageBlob.size,
+      ahorroEsperado: optimizationStats.expectedSaving,
       socketConnected: this.socket.connected
     });
 
@@ -92,30 +102,26 @@ export class SocketService {
       if (reader.result) {
         const imageData = new Uint8Array(reader.result as ArrayBuffer);
         
-        console.log('🔍 DEBUG: Datos de imagen procesados:', {
+        console.log('🎨 Imagen procesada con optimización:', {
           arrayLength: imageData.length,
-          firstBytes: Array.from(imageData.slice(0, 10)),
-          lastBytes: Array.from(imageData.slice(-10))
+          formatoFinal: preferredFormat,
+          reducciónTamaño: `${((1 - imageData.length / 36000) * 100).toFixed(1)}%`
         });
         
-        // Formatear datos según lo que espera el backend
+        // Formatear datos optimizados según capacidades del navegador
         const payload = {
           clientId: this.clientId,
-          data: imageData,  // Array de bytes de la imagen
-          format: 'image/jpeg',   // Especificar formato con prefijo correcto
-          size: imageData.length
+          data: imageData,
+          format: preferredFormat, // Usar formato optimizado (WebP si está disponible)
+          size: imageData.length,
+          optimization: {
+            originalFormat: imageBlob.type,
+            targetFormat: preferredFormat,
+            expectedSaving: optimizationStats.expectedSaving
+          }
         };
         
-        console.log('🔍 DEBUG: Payload completo:', {
-          clientId: payload.clientId,
-          format: payload.format,
-          size: payload.size,
-          hasData: !!payload.data,
-          dataType: typeof payload.data,
-          dataLength: payload.data?.length
-        });
-        
-        console.log(`📤 Enviando imagen: ${payload.size} bytes`);
+        console.log(`📤 Enviando imagen optimizada: ${payload.size} bytes (${preferredFormat})`);
         this.socket.emit('analyze-image', payload);
       } else {
         console.error('❌ FileReader result is null');
