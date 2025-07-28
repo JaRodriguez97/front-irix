@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { io, Socket } from 'socket.io-client';
 import { PlateDetectionResult } from '../interfaces/plate-detection.interface';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class SocketService {
   private connected = new BehaviorSubject<boolean>(false);
   private messages = new BehaviorSubject<PlateDetectionResult | null>(null);
 
-  private readonly SOCKET_URL = 'http://localhost:3000';
+  private readonly SOCKET_URL = environment.apiUrl;
   private clientId: string = '';
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
