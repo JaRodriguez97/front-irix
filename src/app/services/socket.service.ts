@@ -77,17 +77,55 @@ export class SocketService {
 
   sendImageForAnalysis(imageBlob: Blob): void {
     if (!this.socket || !this.socket.connected) {
-      console.error('Socket.IO no conectado');
+      console.error('❌ Socket.IO no conectado');
       return;
     }
+
+    console.log('🔍 DEBUG: Iniciando envío de imagen:', {
+      blobSize: imageBlob.size,
+      blobType: imageBlob.type,
+      socketConnected: this.socket.connected
+    });
 
     const reader = new FileReader();
     reader.onload = () => {
       if (reader.result) {
         const imageData = new Uint8Array(reader.result as ArrayBuffer);
-        this.socket.emit('analyze-image', { clientId: this.clientId, imageData });
+        
+        console.log('🔍 DEBUG: Datos de imagen procesados:', {
+          arrayLength: imageData.length,
+          firstBytes: Array.from(imageData.slice(0, 10)),
+          lastBytes: Array.from(imageData.slice(-10))
+        });
+        
+        // Formatear datos según lo que espera el backend
+        const payload = {
+          clientId: this.clientId,
+          data: imageData,  // Array de bytes de la imagen
+          format: 'image/jpeg',   // Especificar formato con prefijo correcto
+          size: imageData.length
+        };
+        
+        console.log('🔍 DEBUG: Payload completo:', {
+          clientId: payload.clientId,
+          format: payload.format,
+          size: payload.size,
+          hasData: !!payload.data,
+          dataType: typeof payload.data,
+          dataLength: payload.data?.length
+        });
+        
+        console.log(`📤 Enviando imagen: ${payload.size} bytes`);
+        this.socket.emit('analyze-image', payload);
+      } else {
+        console.error('❌ FileReader result is null');
       }
     };
+    
+    reader.onerror = (error) => {
+      console.error('❌ Error leyendo archivo:', error);
+    };
+    
     reader.readAsArrayBuffer(imageBlob);
   }
 
