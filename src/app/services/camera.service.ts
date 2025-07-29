@@ -423,6 +423,44 @@ export class CameraService {
   }
 
   /**
+   * Guardar imagen procesada WebP (300x300) automáticamente
+   */
+  async saveProcessedImage(blob: Blob): Promise<void> {
+    try {
+      // Detectar formato basado en el tipo MIME del blob
+      const format = blob.type.includes('webp') ? 'webp' : 
+                    blob.type.includes('jpeg') ? 'jpg' : 'png';
+      
+      const timestamp = Date.now();
+      const filename = `placa_300x300_${timestamp}.${format}`;
+      
+      // Crear enlace de descarga
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.style.display = 'none';
+      
+      // Agregar al DOM temporalmente para activar la descarga
+      document.body.appendChild(a);
+      a.click();
+      
+      // Limpiar recursos
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      // Actualizar estadísticas
+      this.stats.totalImages++;
+      this.statsSubject.next({ ...this.stats });
+      
+      console.log(`💾 Imagen WebP guardada automáticamente: ${filename} (${(blob.size / 1024).toFixed(2)}KB)`);
+      
+    } catch (error) {
+      console.error('❌ Error guardando imagen procesada:', error);
+    }
+  }
+
+  /**
    * Actualizar estadísticas
    */
   private updateStats(): void {

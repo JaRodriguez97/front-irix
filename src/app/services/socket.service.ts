@@ -85,15 +85,13 @@ export class SocketService {
       return;
     }
 
-    // Obtener capacidades WebP para optimizar formato
-    const preferredFormat = await this.webPDetectionService.getPreferredFormat();
-    const optimizationStats = this.webPDetectionService.getOptimizationStats();
+    // FORZAR WebP - Ya no depende de detección automática
+    const forcedFormat = 'image/webp';
     
-    console.log('🚀 OPTIMIZACIÓN WebP:', {
+    console.log('🚀 CONVERSIÓN WebP FORZADA:', {
       formatoOriginal: imageBlob.type,
-      formatoPreferido: preferredFormat,
-      tamaño: imageBlob.size,
-      ahorroEsperado: optimizationStats.expectedSaving,
+      formatoForzado: forcedFormat,
+      tamañoOriginal: imageBlob.size,
       socketConnected: this.socket.connected
     });
 
@@ -102,26 +100,26 @@ export class SocketService {
       if (reader.result) {
         const imageData = new Uint8Array(reader.result as ArrayBuffer);
         
-        console.log('🎨 Imagen procesada con optimización:', {
+        console.log('🎨 Imagen WebP lista para envío:', {
           arrayLength: imageData.length,
-          formatoFinal: preferredFormat,
-          reducciónTamaño: `${((1 - imageData.length / 36000) * 100).toFixed(1)}%`
+          formatoFinal: forcedFormat,
+          tamañoFinalKB: `${(imageData.length / 1024).toFixed(2)}KB`
         });
         
-        // Formatear datos optimizados según capacidades del navegador
+        // Payload optimizado con WebP forzado
         const payload = {
           clientId: this.clientId,
           data: imageData,
-          format: preferredFormat, // Usar formato optimizado (WebP si está disponible)
+          format: forcedFormat, // SIEMPRE WebP
           size: imageData.length,
           optimization: {
             originalFormat: imageBlob.type,
-            targetFormat: preferredFormat,
-            expectedSaving: optimizationStats.expectedSaving
+            targetFormat: forcedFormat,
+            forced: true // Indicar que es conversión forzada
           }
         };
         
-        console.log(`📤 Enviando imagen optimizada: ${payload.size} bytes (${preferredFormat})`);
+        console.log(`📤 Enviando imagen WebP: ${payload.size} bytes`);
         this.socket.emit('analyze-image', payload);
       } else {
         console.error('❌ FileReader result is null');

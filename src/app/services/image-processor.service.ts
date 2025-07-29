@@ -42,8 +42,8 @@ export class ImageProcessorService {
       const options: ProcessingOptions = {
         targetWidth: 300,
         targetHeight: 300,
-        quality: 0.99,
-        format: 'jpeg'
+        quality: 0.75, // Compresión agresiva para objetivo < 15KB
+        format: 'webp'
       };
 
       // Crear ImageBitmap si la fuente es un video element
@@ -59,8 +59,8 @@ export class ImageProcessorService {
       // Redimensionar usando Pica
       const resizedCanvas = await this.resizeImageBitmap(sourceBitmap, options.targetWidth, options.targetHeight);
       
-      // Comprimir a JPEG
-      const blob = await this.compressToJPEG(resizedCanvas, options.quality);
+      // Comprimir a WebP
+      const blob = await this.compressToWebP(resizedCanvas, options.quality);
 
       // Calcular estadísticas
       const processingTime = performance.now() - startTime;
@@ -83,19 +83,71 @@ export class ImageProcessorService {
   }
 
   /**
-   * Comprimir canvas a JPEG
+   * Comprimir canvas a WebP con compresión ultra agresiva
    */
-  async compressToJPEG(canvas: HTMLCanvasElement, quality: number): Promise<Blob> {
+  async compressToWebP(canvas: HTMLCanvasElement, quality: number): Promise<Blob> {
+    const TARGET_SIZE_KB = 15; // Objetivo: < 15KB
+    let currentQuality = quality;
+    let attempts = 0;
+    const maxAttempts = 5;
+    
+    try {
+      // Compresión iterativa hasta alcanzar el tamaño objetivo
+      while (attempts < maxAttempts) {
+        const webpBlob = await this.tryCompressToFormat(canvas, 'image/webp', currentQuality);
+        const sizeKB = webpBlob.size / 1024;
+        
+        console.log(`🔄 Intento ${attempts + 1}: Calidad ${currentQuality.toFixed(2)} = ${sizeKB.toFixed(2)}KB`);
+        
+        if (sizeKB <= TARGET_SIZE_KB) {
+          console.log(`✅ WebP optimizado: ${sizeKB.toFixed(2)}KB (objetivo: ${TARGET_SIZE_KB}KB)`);
+          return webpBlob;
+        }
+        
+        // Reducir calidad agresivamente
+        currentQuality *= 0.8;
+        attempts++;
+        
+        if (currentQuality < 0.3) {
+          console.log(`⚠️ Calidad mínima alcanzada: ${currentQuality.toFixed(2)}`);
+          return webpBlob;
+        }
+      }
+      
+      // Si no se logra el objetivo, usar la última compresión
+      const finalBlob = await this.tryCompressToFormat(canvas, 'image/webp', currentQuality);
+      console.log(`✅ WebP final: ${(finalBlob.size / 1024).toFixed(2)}KB con calidad ${currentQuality.toFixed(2)}`);
+      return finalBlob;
+      
+    } catch (webpError) {
+      console.warn('⚠️ WebP no soportado, usando fallback JPEG:', webpError);
+      
+      // Fallback a JPEG con compresión agresiva
+      try {
+        const jpegBlob = await this.tryCompressToFormat(canvas, 'image/jpeg', Math.min(quality * 0.6, 0.5));
+        console.log(`✅ Fallback JPEG: ${(jpegBlob.size / 1024).toFixed(2)}KB`);
+        return jpegBlob;
+      } catch (jpegError) {
+        console.error('❌ Error con ambos formatos:', jpegError);
+        throw new Error('Error comprimiendo imagen: WebP y JPEG fallaron');
+      }
+    }
+  }
+
+  /**
+   * Intentar comprimir a un formato específico
+   */
+  private async tryCompressToFormat(canvas: HTMLCanvasElement, mimeType: string, quality: number): Promise<Blob> {
     return new Promise((resolve, reject) => {
       canvas.toBlob(
         (blob) => {
-          if (blob) {
+          if (blob && blob.size > 0) {
             resolve(blob);
           } else {
-            reject(new Error('Error comprimiendo a JPEG'));
+            reject(new Error(`Error comprimiendo a ${mimeType}`));
           }
         },
-        'image/jpeg',
+        mimeType,
         quality
       );
     });
@@ -149,7 +201,7 @@ export class ImageProcessorService {
       this.processingCanvas = document.createElement('canvas');
       this.ctx = this.processingCanvas.getContext('2d', { 
         willReadFrequently: true,
-        alpha: false // Optimización para JPEG
+        alpha: true // WebP soporta transparencia
       })!;
 
       if (!this.ctx) {

@@ -96,6 +96,11 @@ export class ImageAnalysisService {
   private analyzeThumbnail(thumbnail: Blob): void {
     const startTime = Date.now();
     
+    // 💾 DESCARGA AUTOMÁTICA: Guardar imagen 300x300 procesada
+    this.cameraService.saveProcessedImage(thumbnail)
+      .then(() => console.log('💾 Imagen 300x300 descargada automáticamente'))
+      .catch(error => console.error('❌ Error descargando imagen 300x300:', error));
+    
     this.socketService.sendImageForAnalysis(thumbnail);
     
     this.stats.imagesAnalyzed++;
